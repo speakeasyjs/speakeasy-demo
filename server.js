@@ -1,19 +1,11 @@
-const speakeasy = require('speakeasy')
-const koa = require('koa')
-const router = require('koa-router')();
-const app = koa()
+var speakeasy = require('speakeasy')
+var express = require('express');
+var app = express();
 
-const Jade = require('koa-jade')
-const jade = new Jade({
-  viewPath: './views',
-  debug: false,
-  pretty: false,
-  compileDebug: false
-})
+app.set('views', './views')
+app.set('view engine', 'jade')
 
-app.use(jade.middleware)
-
-router.get('/', function *(next) {
+app.get('/', function (req, res) {
   var locals = {}
 
   // Generate a secret
@@ -25,19 +17,15 @@ router.get('/', function *(next) {
   // Get initial token
   locals.token = getToken(locals.secret.base32)
 
-  this.render('index', locals, true)
+  res.render('index', locals)
 });
 
-router.get('/token', function *(next) {
-  this.body = getToken(this.request.query.secret);
+app.get('/token', function (req, res) {
+  res.send(getToken(req.query.secret));
 });
-
-app
-  .use(router.routes())
-  .use(router.allowedMethods());
 
 function getToken(secret) {
   return speakeasy.time({key: secret, encoding: 'base32'})
 }
 
-app.listen(3000);
+app.listen(8080);
