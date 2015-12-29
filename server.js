@@ -28,4 +28,6 @@ function getToken(secret) {
   return speakeasy.time({key: secret, encoding: 'base32'})
 }
 
-app.listen(8080);
+var port = process.env.OPENSHIFT_NODEJS_PORT || 8080
+    , ip = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
+app.listen(port, ip);
