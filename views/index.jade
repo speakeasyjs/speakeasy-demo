@@ -1,0 +1,92 @@
+doctype html
+html(lang='en')
+  head
+    title Speakeasy Demo
+    script(type='text/javascript',src='https://code.jquery.com/jquery-2.1.4.min.js')
+    link(type='text/css',rel='stylesheet',href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css')
+    link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/tomorrow.min.css')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/highlight.min.js')
+    script(type='text/javascript').
+      var secondsSinceUpdate = 0;
+      var updateTimer = function() {
+        // Increment seconds since last update
+        secondsSinceUpdate++;
+        
+        // Get current time seconds
+        var sec = new Date().getSeconds();
+        
+        // Fire if time since last update was 5 seconds, or if the clock has struck 0 or 30
+        if (secondsSinceUpdate >= 5 || sec == 0 || sec == 30) {
+          updateToken();
+          secondsSinceUpdate = 0;
+        } else {
+          var secondsToNextUpdate = 5 - secondsSinceUpdate;
+          $('.update').text('Updating in ' + secondsToNextUpdate + '...')
+        }
+      }
+      var updateToken = function() {
+        $.get('token?secret=' + $('#secret').text(), function( data ) {
+          $('#token').text(data);
+          $('.update').text('Updated.')
+        });
+      }
+      $(document).ready(function() {
+        $('pre').each(function(i, block) {
+          hljs.highlightBlock(block);
+        });
+      });
+      setInterval(updateTimer, 1000)
+    style(type='text/css').
+      pre {
+        overflow: auto;
+        word-wrap: normal;
+        white-space: pre;
+      }
+  body
+    .container
+      .row
+        .col-md-12
+          h1 Speakeasy Demo
+      .row
+        .col-md-4
+          h2 Secret Key
+          h3 Sample Code
+          pre.
+            var speakeasy = require("speakeasy")
+
+            // Generate a secret key of length 20
+            var secret = speakeasy.generate_key({length: 20})
+
+            console.log(secret.base32)
+        .col-md-4
+          h2 QR Code
+          h3 Sample Code
+          pre.
+            // Uses the otpauth:// protocol
+            // as used in Google Authenticator
+            
+            var authURL = 'otpauth://totp/SecretKey?secret=' + encodeURIComponent(secret.base32);
+            
+            console.log(qr.toDataURL(authURL))
+        .col-md-4
+          h2 Generated Token
+          h3 Sample Code
+          pre.
+            var token = speakeasy.time({
+              key: secret.base32,
+              encoding: 'base32'
+            });
+
+            console.log(token);
+      .row
+        .col-md-4
+          p
+            strong Secret:
+          p#secret= secret.base32
+        .col-md-4
+          p Scan this in to Google Authenticator or another two-factor authentication app.
+          img(src=qrURL, style='display: block; margin: auto')
+        .col-md-4
+          p#token(style='font-size: 30pt; font-family: Monaco, Inconsolata, Consolas Helvetica, sans-serif;')=token
+          p
+            small.update Updates every 5 seconds.
