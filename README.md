@@ -1,3 +1,8 @@
-The OpenShift `nodejs` cartridge documentation can be found at:
+This is just the demo code for the Speakeasy Node.js package.
 
-http://openshift.github.io/documentation/oo_cartridge_guide.html#nodejs
+You probably want to go either:
+
+- [The demo for the Speakeasy module](https://sedemo-mktb.rhcloud.com/)
+- [The GitHub page for the Speakeasy module](https://github.com/speakeasyjs/speakeasy)
+
+Shoutout to Red Hat OpenShift for the PaaS hosting.
