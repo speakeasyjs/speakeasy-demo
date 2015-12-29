@@ -3,6 +3,7 @@
   "dependencies": {
     "express": "^4.13.3",
     "jade": "^1.11.0",
+    "qr-image": "^3.1.0",
     "speakeasy": "^1.0.3"
   }
 }

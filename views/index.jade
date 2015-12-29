@@ -7,21 +7,22 @@ html(lang='en')
     link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/tomorrow.min.css')
     script(src='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/highlight.min.js')
     script(type='text/javascript').
-      var secondsSinceUpdate = 0;
       var updateTimer = function() {
-        // Increment seconds since last update
-        secondsSinceUpdate++;
-        
         // Get current time seconds
         var sec = new Date().getSeconds();
         
-        // Fire if time since last update was 5 seconds, or if the clock has struck 0 or 30
-        if (secondsSinceUpdate >= 5 || sec == 0 || sec == 30) {
+        // Fire if clock has struck 0 or 30
+        if (sec == 0 || sec == 30) {
           updateToken();
-          secondsSinceUpdate = 0;
         } else {
-          var secondsToNextUpdate = 5 - secondsSinceUpdate;
-          $('.update').text('Updating in ' + secondsToNextUpdate + '...')
+          var secsToNext = 0;
+          // If less than 30, next update is at 30
+          if (sec < 30) {
+            secsToNext = 30 - sec;
+          } else if (sec > 30) {
+            secsToNext = 60 - sec;
+          }
+          $('.update').text('Updating in ' + secsToNext + '...')
         }
       }
       var updateToken = function() {
@@ -35,7 +36,7 @@ html(lang='en')
           hljs.highlightBlock(block);
         });
       });
-      setInterval(updateTimer, 1000)
+      setInterval(updateTimer, 500)
     style(type='text/css').
       pre {
         overflow: auto;
@@ -85,8 +86,8 @@ html(lang='en')
           p#secret= secret.base32
         .col-md-4
           p Scan this in to Google Authenticator or another two-factor authentication app.
-          img(src=qrURL, style='display: block; margin: auto')
+          img(src=qrPath, style='display: block; margin: auto; width: 200px;', width="200")
         .col-md-4
           p#token(style='font-size: 30pt; font-family: Monaco, Inconsolata, Consolas Helvetica, sans-serif;')=token
           p
-            small.update Updates every 5 seconds.
+            small.update Updating...
