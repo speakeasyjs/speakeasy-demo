@@ -7,6 +7,9 @@ html(lang='en')
     link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/tomorrow.min.css')
     script(src='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/highlight.min.js')
     script(type='text/javascript').
+      hljs.configure({
+        languages: ['js']
+      })
       var updateTimer = function() {
         // Get current time seconds
         var sec = new Date().getSeconds();
@@ -35,6 +38,11 @@ html(lang='en')
         $('pre').each(function(i, block) {
           hljs.highlightBlock(block);
         });
+        $('#verify_button').click(function() {
+          $.get('verify?secret=' + $('#secret').text() + '&token=' + $('#token_input').val(), function( data ) {
+            $('#verify_result').text(data);
+          });
+        })
       });
       setInterval(updateTimer, 500)
     style(type='text/css').
@@ -53,41 +61,55 @@ html(lang='en')
           h2 Secret Key
           h3 Sample Code
           pre.
-            var speakeasy = require("speakeasy")
-
-            // Generate a secret key of length 20
-            var secret = speakeasy.generate_key({length: 20})
-
-            console.log(secret.base32)
-        .col-md-4
-          h2 QR Code
-          h3 Sample Code
-          pre.
-            // Uses the otpauth:// protocol
-            // as used in Google Authenticator
+            var speakeasy = require('speakeasy');
+            var QRCode = require('qrcode');
             
-            var authURL = 'otpauth://totp/SecretKey?secret=' + encodeURIComponent(secret.base32);
+            var secret = speakeasy.generateSecret({length: 20});
+            console.log(secret); // secret of length 20
             
-            console.log(qr.toDataURL(authURL))
+            QRCode.toDataURL(secret.otpauth_url, function(err, data_url) {
+              console.log(data_url); // get QR code data URL
+            });
         .col-md-4
           h2 Generated Token
           h3 Sample Code
           pre.
-            var token = speakeasy.time({
+            // Get the token at the current time
+            // Here, we specify base32 encoding
+            
+            var token = speakeasy.totp({
               key: secret.base32,
               encoding: 'base32'
             });
 
             console.log(token);
+        .col-md-4
+          h2 Verify Token
+          h3 Sample Code
+          pre.
+            var userToken = params.get('token'); // Verify the token the user gives
+            
+            var verified = speakeasy.totp.verify({
+              key: secret.base32,
+              encoding: 'base32',
+              token: userToken
+            });
+            
+            console.log(verified);
       .row
         .col-md-4
           p
             strong Secret:
           p#secret= secret.base32
-        .col-md-4
+          img(src=qrPath, style='display: block; width: 200px;', width="200")
           p Scan this in to Google Authenticator or another two-factor authentication app.
-          img(src=qrPath, style='display: block; margin: auto; width: 200px;', width="200")
         .col-md-4
-          p#token(style='font-size: 30pt; font-family: Monaco, Inconsolata, Consolas Helvetica, sans-serif;')=token
+          p#token(style='font-size: 30pt; font-family: Monaco, Inconsolata, Consolas, Helvetica, sans-serif;')=token
           p
             small.update Updating...
+        .col-md-4
+          p
+            input#token_input(type='text', style='font-size: 30pt; font-family: Monaco, Inconsolata, Consolas, Helvetica, sans-serif; width: 155px;', placeholder='000000')
+          p
+            input#verify_button(type='button', value='Verify')
+          p#verify_result
