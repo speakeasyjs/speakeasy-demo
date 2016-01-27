@@ -65,7 +65,7 @@ html(lang='en')
             var QRCode = require('qrcode');
             
             var secret = speakeasy.generateSecret({length: 20});
-            console.log(secret); // secret of length 20
+            console.log(secret.base32); // secret of length 20
             
             QRCode.toDataURL(secret.otpauth_url, function(err, data_url) {
               console.log(data_url); // get QR code data URL
@@ -99,7 +99,7 @@ html(lang='en')
       .row
         .col-md-4
           p
-            strong Secret:
+            strong Secret (base 32 format):
           p#secret= secret.base32
           img(src=qrPath, style='display: block; width: 200px;', width="200")
           p Scan this in to Google Authenticator or another two-factor authentication app.
