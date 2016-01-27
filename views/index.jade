@@ -78,7 +78,7 @@ html(lang='en')
             // Here, we specify base32 encoding
             
             var token = speakeasy.totp({
-              key: secret.base32,
+              secret: secret.base32,
               encoding: 'base32'
             });
 
@@ -90,7 +90,7 @@ html(lang='en')
             var userToken = params.get('token'); // Verify the token the user gives
             
             var verified = speakeasy.totp.verify({
-              key: secret.base32,
+              secret: secret.base32,
               encoding: 'base32',
               token: userToken
             });
